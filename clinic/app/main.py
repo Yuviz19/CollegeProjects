@@ -55,7 +55,37 @@ def book_appointment(cursor, conn):
         print("Could not book appointment")
         print("That time slot may already be taken")
 
+def cancle_appointment(cursor, conn):
+    print("\n--- Cancle Appointment ---")
+    pat_id = input("Insert Your Patient ID: ")
 
+    query = """
+        SELECT appointment_id, appointment_date, appointment_time
+        FROM appointment
+        WHERE patient_id = %s
+        ORDER BY appointment_date, appointment_time
+    """
+    cursor.execute(query,(pat_id))
+    appointments = cursor.fetchall()
+
+    if not appointments:
+        print("No Appointments Found")
+        return
+
+    print("Your Appointments: ")
+    for i, appt in enumerate(appointments, start=1):
+        print(f"{i}. {appt[1]} {appt[2]}")
+
+    choice = int(input("Select the appointment to cancle: "))
+    selected = appointments[choice - 1]
+    appointment_id = selected[0]
+
+    delete_query = "DELETE FROM appointment WHERE appointment_id = %s"
+
+    cursor.execute(delete_query, (appointment_id,))
+    conn.commit()
+
+    print("\nAppointment cancelled successfully.\n")
 
 def main():
 
@@ -68,7 +98,8 @@ def main():
         print("1. Register Patient")
         print("2. View Doctors")
         print("3. Book Appointment")
-        print("4. Exit")
+        print("4. Cancle Appointment")
+        print("5. Exit")
 
         choice = input("\nEnter choice: ")
 
@@ -80,6 +111,9 @@ def main():
 
         elif choice == "3":
             book_appointment(cursor,conn)
+
+        elif choice == "4":
+            cancle_appointment(cursor, conn)
 
         elif choice == "4":
             print("Goodbye.")
