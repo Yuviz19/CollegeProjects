@@ -83,8 +83,8 @@ def view_appointments(cursor):
 
     print()
 
-def cancle_appointment(cursor, conn):
-    print("\n--- Cancle Appointment ---")
+def cancel_appointment(cursor, conn):
+    print("\n--- Cancel Appointment ---")
     pat_id = input("Insert Your Patient ID: ")
 
     query = """
@@ -127,7 +127,7 @@ def main():
         print("2. View Doctors")
         print("3. Book Appointment")
         print("4. View Appointment")
-        print("5. Cancle Appointment")
+        print("5. Cancel Appointment")
         print("6. Exit")
 
         choice = input("\nEnter choice: ")
@@ -145,7 +145,7 @@ def main():
             view_appointments(cursor)
 
         elif choice == "5":
-            cancle_appointment(cursor, conn)
+            cancel_appointment(cursor, conn)
 
         elif choice == "6":
             print("Goodbye.")
