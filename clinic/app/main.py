@@ -55,6 +55,34 @@ def book_appointment(cursor, conn):
         print("Could not book appointment")
         print("That time slot may already be taken")
 
+def view_appointments(cursor):
+
+    print("\n--- View Appointments ---\n")
+
+    pat_id = input("Enter your Patient ID: ")
+
+    query = """
+    SELECT a.appointment_date, a.appointment_time, d.name, d.specialization
+    FROM appointment a
+    JOIN doctor d ON a.doctor_id = d.doctor_id
+    WHERE a.patient_id = %s
+    ORDER BY a.appointment_date, a.appointment_time
+    """
+
+    cursor.execute(query, (pat_id,))
+    appointments = cursor.fetchall()
+
+    if not appointments:
+        print("No appointments found.\n")
+        return
+
+    print("\nYour Appointments:\n")
+
+    for appt in appointments:
+        print(f"{appt[0]} {appt[1]} with {appt[2]} ({appt[3]})")
+
+    print()
+
 def cancle_appointment(cursor, conn):
     print("\n--- Cancle Appointment ---")
     pat_id = input("Insert Your Patient ID: ")
@@ -65,7 +93,7 @@ def cancle_appointment(cursor, conn):
         WHERE patient_id = %s
         ORDER BY appointment_date, appointment_time
     """
-    cursor.execute(query,(pat_id))
+    cursor.execute(query,(pat_id,))
     appointments = cursor.fetchall()
 
     if not appointments:
@@ -98,8 +126,9 @@ def main():
         print("1. Register Patient")
         print("2. View Doctors")
         print("3. Book Appointment")
-        print("4. Cancle Appointment")
-        print("5. Exit")
+        print("4. View Appointment")
+        print("5. Cancle Appointment")
+        print("6. Exit")
 
         choice = input("\nEnter choice: ")
 
@@ -113,9 +142,12 @@ def main():
             book_appointment(cursor,conn)
 
         elif choice == "4":
+            view_appointments(cursor)
+
+        elif choice == "5":
             cancle_appointment(cursor, conn)
 
-        elif choice == "4":
+        elif choice == "6":
             print("Goodbye.")
             break
 
