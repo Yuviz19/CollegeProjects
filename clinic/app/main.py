@@ -1,4 +1,29 @@
 from db import get_connection
+from datetime import datetime
+
+def get_valid_date():
+    while True:
+        date_input = input("Enter date (YYYY-MM-DD): ")
+        try:
+            date_obj = datetime.strptime(date_input, "%Y-%m-%d")
+
+            if date_obj.date() < datetime.today().date():
+                print("Cannot book past dates.\n")
+                continue
+
+            return date_input
+
+        except:
+            print("Invalid date format. Use YYYY-MM-DD.\n")
+
+def get_valid_time():
+    while True:
+        time_input = input("Enter time (HH:MM): ")
+        try:
+            datetime.strptime(time_input, "%H:%M")
+            return time_input
+        except:
+            print("Invalid time format. Please use HH:MM (24-hour).\n")
 
 def doctor_exists(cursor, doc_id):
     query = "SELECT doctor_id FROM doctor WHERE doctor_id = %s"
@@ -70,8 +95,8 @@ def book_appointment(cursor, conn):
     doc_id = get_valid_docid(cursor)
     pat_id = get_patid(cursor)
 
-    app_date = input("Enter your desired appointment date: ")
-    app_time = input("Enter the time: ")
+    app_date = get_valid_date()
+    app_time = get_valid_time()
 
     query = """
     INSERT INTO appointment (patient_id, doctor_id, appointment_date, appointment_time)
