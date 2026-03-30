@@ -1,5 +1,37 @@
 from db import get_connection
 
+def doctor_exists(cursor, doc_id):
+    query = "SELECT doctor_id FROM doctor WHERE doctor_id = %s"
+    cursor.execute(query, (doc_id,))
+    return cursor.fetchone() is not None
+
+def get_valid_docid(cursor):
+    while True:
+        try:
+            doc_id = int(input("Enter Doctor ID: "))
+            if not doctor_exists(cursor, doc_id):
+                print("Invalid Doctor ID\n")
+                continue
+            return doc_id
+        except:
+            print("Invalid input. Enter a number.\n")
+
+def patient_exists(cursor, pat_id):
+    query = "SELECT patient_id FROM patient WHERE patient_id = %s"
+    cursor.execute(query, (pat_id,))
+    return cursor.fetchone() is not None
+
+def get_patid(cursor):
+    while True:
+        try:
+            pat_id = int(input("Enter Your Patient ID (given during registration): "))
+            if not patient_exists(cursor, pat_id):
+                print("Invalid Patient ID. Please register first.\n")
+                continue
+            return pat_id
+        except:
+            print("Invalid Input! Please enter a number.") 
+
 def show_doctors(cursor):
     cursor.execute("SELECT doctor_id, name, specialization FROM doctor")
     doctors = cursor.fetchall()
@@ -35,8 +67,8 @@ def book_appointment(cursor, conn):
     show_doctors(cursor)
     print("\n")
 
-    doc_id = input("Enter Doctor ID: ")
-    pat_id = input("Enter your Patient ID (given during registration): ")
+    doc_id = get_valid_docid(cursor)
+    pat_id = get_patid(cursor)
 
     app_date = input("Enter your desired appointment date: ")
     app_time = input("Enter the time: ")
@@ -51,7 +83,7 @@ def book_appointment(cursor, conn):
 
         print("Appointment Booked Successfully")
 
-    except Exception as e:
+    except:
         print("Could not book appointment")
         print("That time slot may already be taken")
 
@@ -59,7 +91,7 @@ def view_appointments(cursor):
 
     print("\n--- View Appointments ---\n")
 
-    pat_id = input("Enter your Patient ID: ")
+    pat_id = get_patid(cursor)
 
     query = """
     SELECT a.appointment_date, a.appointment_time, d.name, d.specialization
@@ -85,7 +117,7 @@ def view_appointments(cursor):
 
 def cancel_appointment(cursor, conn):
     print("\n--- Cancel Appointment ---")
-    pat_id = input("Insert Your Patient ID: ")
+    pat_id = get_patid(cursor)
 
     query = """
         SELECT appointment_id, appointment_date, appointment_time
@@ -93,18 +125,28 @@ def cancel_appointment(cursor, conn):
         WHERE patient_id = %s
         ORDER BY appointment_date, appointment_time
     """
-    cursor.execute(query,(pat_id,))
+    cursor.execute(query, (pat_id,))
     appointments = cursor.fetchall()
 
     if not appointments:
-        print("No Appointments Found")
+        print("No Appointments Found\n")
         return
 
-    print("Your Appointments: ")
+    print("\nYour Appointments:\n")
     for i, appt in enumerate(appointments, start=1):
         print(f"{i}. {appt[1]} {appt[2]}")
 
-    choice = int(input("Select the appointment to cancle: "))
+    try:
+        choice = int(input("\nSelect the appointment to cancel: "))
+
+        if choice < 1 or choice > len(appointments):
+            print("Invalid selection\n")
+            return
+
+    except Exception:
+        print("Invalid input\n")
+        return
+
     selected = appointments[choice - 1]
     appointment_id = selected[0]
 
