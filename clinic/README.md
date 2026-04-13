@@ -20,15 +20,15 @@ The system is designed with a focus on **data integrity, validation, and usabili
 
 ## Key Features
 
-* ✅ **Patient Registration** with auto-generated ID
-* ✅ **Doctor Listing** with specialization
-* ✅ **Appointment Booking System**
-* ✅ **View Appointments (JOIN queries)**
-* ✅ **Cancel Appointment functionality**
-* ✅ **Input Validation Layer** (IDs, date, time)
-* ✅ **Prevents invalid patient/doctor usage**
-* ✅ **Structured CLI UI using tabular display**
-* ✅ **Error handling for duplicate bookings**
+* **Patient Registration** with auto-generated ID
+* **Doctor Listing** with specialization
+* **Appointment Booking System**
+* **View Appointments (JOIN queries)**
+* **Cancel Appointment functionality**
+* **Input Validation Layer** (IDs, date, time)
+* **Prevents invalid patient/doctor usage**
+* **Structured CLI UI using tabular display**
+* **Error handling for duplicate bookings**
 
 ---
 
@@ -145,7 +145,7 @@ This project demonstrates practical understanding of:
 
 ## Author
 
-Yuvi
+Yuvraj Singh
 Engineering Student
 
 ---
