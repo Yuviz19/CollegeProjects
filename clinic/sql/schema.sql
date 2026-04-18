@@ -51,4 +51,3 @@ INSERT IGNORE INTO doctor (name, specialization) VALUES
 ('Dr Pooja Sethi','Radiology'),
 ('Dr Nikhil Arora','Sports Medicine'),
 ('Dr Aditi Kulkarni','Family Medicine');
-
