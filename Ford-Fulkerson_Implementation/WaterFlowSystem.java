@@ -4,13 +4,11 @@ import java.util.*;
 import java.util.List;
 
 public class WaterFlowSystem extends JFrame {
-    // Capacity Matrix
     private final int[][] capacity;
     private final int[][] flow;
     private final String[] nodes = {"S", "C1", "C2", "C3", "C4", "C5", "C6", "T"};
     private final int n = nodes.length;
     
-    // Node Coordinates for Drawing
     private final int[][] coords = {
         {50, 200}, {180, 50}, {180, 200}, {350, 50}, 
         {350, 350}, {500, 200}, {500, 350}, {650, 200}
@@ -34,20 +32,19 @@ public class WaterFlowSystem extends JFrame {
     }
 
     private void initializeNetwork() {
-        // Map S=0, C1=1, C2=2, C3=3, C4=4, C5=5, C6=6, T=7
-        capacity[0][1] = 12; // S -> C1
-        capacity[0][2] = 8;  // S -> C2
-        capacity[0][4] = 15; // S -> C4
-        capacity[1][3] = 9;  // C1 -> C3
-        capacity[1][5] = 6;  // C1 -> C5
-        capacity[2][3] = 7;  // C2 -> C3
-        capacity[2][5] = 10; // C2 -> C5
-        capacity[2][4] = 5;  // C2 -> C4
-        capacity[2][6] = 5;  // C2 -> C6
-        capacity[3][7] = 11; // C3 -> T
-        capacity[4][6] = 18; // C4 -> C6
-        capacity[5][7] = 14; // C5 -> T
-        capacity[6][7] = 9;  // C6 -> T
+        capacity[0][1] = 12; 
+        capacity[0][2] = 8;
+        capacity[0][4] = 15;
+        capacity[1][3] = 9;
+        capacity[1][5] = 6;
+        capacity[2][3] = 7;
+        capacity[2][5] = 10;
+        capacity[2][4] = 5;
+        capacity[2][6] = 5;
+        capacity[3][7] = 11;
+        capacity[4][6] = 18;
+        capacity[5][7] = 14;
+        capacity[6][7] = 9;
     }
 
     private void solve(GraphPanel panel) {
@@ -67,7 +64,6 @@ public class WaterFlowSystem extends JFrame {
                 path.add(0);
                 Collections.reverse(path);
 
-                // Update residual graph
                 for (int v = n - 1; v != 0; v = parent[v]) {
                     int u = parent[v];
                     flow[u][v] += pathFlow;
@@ -114,7 +110,6 @@ public class WaterFlowSystem extends JFrame {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Draw Edges
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
                     if (capacity[i][j] > 0) {
@@ -127,7 +122,6 @@ public class WaterFlowSystem extends JFrame {
                         g2.setStroke(new BasicStroke(inPath ? 3 : 1));
                         g2.drawLine(coords[i][0]+20, coords[i][1]+20, coords[j][0]+20, coords[j][1]+20);
                         
-                        // Label Flow/Capacity
                         g2.setColor(Color.BLACK);
                         int midX = (coords[i][0] + coords[j][0]) / 2 + 15;
                         int midY = (coords[i][1] + coords[j][1]) / 2;
@@ -136,7 +130,6 @@ public class WaterFlowSystem extends JFrame {
                 }
             }
 
-            // Draw Nodes
             for (int i = 0; i < n; i++) {
                 g2.setColor(new Color(255, 165, 0));
                 g2.fillOval(coords[i][0], coords[i][1], 40, 40);

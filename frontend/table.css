@@ -1,0 +1,13 @@
+table, tr, td, th{
+    border: 1px solid black;
+    border-style: dashed;
+    padding: 5px;
+    text-align: center;
+}
+
+th {
+    background-color: black;
+    color: white;
+}
+
+a:visited
