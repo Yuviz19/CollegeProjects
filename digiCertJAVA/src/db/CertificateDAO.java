@@ -21,15 +21,15 @@ public class CertificateDAO {
         try (Connection con = DB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, c.getId());
-            ps.setString(2, c.getHolderName());
-            ps.setString(3, c.getCourse());
-            ps.setString(4, c.getInstitution());
-            ps.setString(5, c.getGrade());
-            ps.setDate(6, Date.valueOf(c.getIssueDate()));
-            ps.setDate(7, Date.valueOf(c.getExpiryDate()));
-            ps.setString(8, c.getStatus());
-            ps.setString(9, c.getSignature());
+            ps.setString(1, c.id);
+            ps.setString(2, c.holderName);
+            ps.setString(3, c.course);
+            ps.setString(4, c.institution);
+            ps.setString(5, c.grade);
+            ps.setDate(6, Date.valueOf(c.issueDate));
+            ps.setDate(7, Date.valueOf(c.expiryDate));
+            ps.setString(8, c.status);
+            ps.setString(9, c.signature);
             return ps.executeUpdate() == 1;
 
         } catch (SQLException e) {
@@ -44,9 +44,8 @@ public class CertificateDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,9 +59,8 @@ public class CertificateDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rowToCertificate(rs) : null;
-            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rowToCertificate(rs) : null;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -72,11 +70,9 @@ public class CertificateDAO {
 
     public List<Certificate> findAll() {
         List<Certificate> list = new ArrayList<>();
-        String sql = "SELECT * FROM certificates ORDER BY issue_date DESC";
-
         try (Connection con = DB.getConnection();
              Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             ResultSet rs = st.executeQuery("SELECT * FROM certificates ORDER BY issue_date DESC")) {
 
             while (rs.next()) {
                 list.add(rowToCertificate(rs));
@@ -91,21 +87,18 @@ public class CertificateDAO {
     public List<Certificate> search(String text) {
         List<Certificate> list = new ArrayList<>();
         String sql = "SELECT * FROM certificates "
-                + "WHERE id LIKE ? OR holder_name LIKE ? OR course LIKE ? OR institution LIKE ? "
-                + "ORDER BY issue_date DESC";
+                + "WHERE id LIKE ? OR holder_name LIKE ? OR course LIKE ? OR institution LIKE ?";
 
-        String like = "%" + text + "%";
         try (Connection con = DB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, like);
-            ps.setString(2, like);
-            ps.setString(3, like);
-            ps.setString(4, like);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(rowToCertificate(rs));
-                }
+            String like = "%" + text + "%";
+            for (int i = 1; i <= 4; i++) {
+                ps.setString(i, like);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rowToCertificate(rs));
             }
 
         } catch (SQLException e) {
@@ -131,17 +124,17 @@ public class CertificateDAO {
 
     private Certificate rowToCertificate(ResultSet rs) throws SQLException {
         Certificate c = new Certificate();
-        c.setId(rs.getString("id"));
-        c.setHolderName(rs.getString("holder_name"));
-        c.setCourse(rs.getString("course"));
-        c.setInstitution(rs.getString("institution"));
-        c.setGrade(rs.getString("grade"));
-        c.setIssueDate(rs.getDate("issue_date").toLocalDate());
-        c.setExpiryDate(rs.getDate("expiry_date").toLocalDate());
-        c.setStatus(rs.getString("status"));
-        c.setSignature(rs.getString("signature"));
-        String reason = rs.getString("revoked_reason");
-        c.setRevokedReason(reason != null ? reason : "");
+        c.id            = rs.getString("id");
+        c.holderName    = rs.getString("holder_name");
+        c.course        = rs.getString("course");
+        c.institution   = rs.getString("institution");
+        c.grade         = rs.getString("grade");
+        c.issueDate     = rs.getDate("issue_date").toLocalDate();
+        c.expiryDate    = rs.getDate("expiry_date").toLocalDate();
+        c.status        = rs.getString("status");
+        c.signature     = rs.getString("signature");
+        String reason   = rs.getString("revoked_reason");
+        c.revokedReason = reason != null ? reason : "";
         return c;
     }
 }

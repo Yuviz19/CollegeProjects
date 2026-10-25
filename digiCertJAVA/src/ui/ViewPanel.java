@@ -1,9 +1,6 @@
 package ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.time.LocalDate;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -12,9 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import db.CertificateDAO;
@@ -28,30 +22,21 @@ public class ViewPanel extends JPanel {
         @Override
         public boolean isCellEditable(int row, int col) { return false; }
     };
-
-    private final JTable table = new JTable(model);
-    private final JTextField searchField = new JTextField(18);
-    private final JLabel infoLabel = new JLabel(" ");
+    private final JTextField searchField = new JTextField(15);
 
     public ViewPanel() {
-        setLayout(new BorderLayout(0, 12));
-        setBorder(BorderFactory.createEmptyBorder(18, 22, 18, 22));
-
-        JPanel top = new JPanel(new BorderLayout(0, 10));
-        top.add(Style.title("View / Search Certificates"), BorderLayout.NORTH);
+        setLayout(new BorderLayout(5, 5));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel searchRow = new JPanel();
-        searchRow.add(new JLabel("Search (ID, name, course):"));
+        searchRow.add(new JLabel("Search:"));
         searchRow.add(searchField);
-        JButton searchButton = Style.primaryButton("Search");
+        JButton searchButton = new JButton("Search");
         searchRow.add(searchButton);
         JButton showAllButton = new JButton("Show all");
         searchRow.add(showAllButton);
-        top.add(searchRow, BorderLayout.CENTER);
-
-        add(top, BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-        add(infoLabel, BorderLayout.SOUTH);
+        add(searchRow, BorderLayout.NORTH);
+        add(new JScrollPane(new JTable(model)), BorderLayout.CENTER);
 
         searchButton.addActionListener(e -> loadTable());
         showAllButton.addActionListener(e -> {
@@ -59,77 +44,18 @@ public class ViewPanel extends JPanel {
             loadTable();
         });
         searchField.addActionListener(e -> loadTable());
-        setupTableLooks();
+        loadTable();
     }
 
-    private void setupTableLooks() {
-        table.setRowHeight(26);
-        table.setFont(Style.NORMAL);
-        table.setShowGrid(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getTableHeader().setFont(Style.HEADING);
-        table.getTableHeader().setReorderingAllowed(false);
+    private void loadTable() {
+        CertificateDAO dao = new CertificateDAO();
+        java.util.List<Certificate> list = searchField.getText().trim().isEmpty()
+                ? dao.findAll() : dao.search(searchField.getText().trim());
 
-        DefaultTableCellRenderer colored = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable t, Object value,
-                    boolean selected, boolean focus, int row, int col) {
-                Component c = super.getTableCellRendererComponent(t, value, selected, focus, row, col);
-                if (!selected) {
-                    String status = String.valueOf(model.getValueAt(row, 7));
-                    String expiry = String.valueOf(model.getValueAt(row, 6));
-                    if (status.equals("REVOKED")) {
-                        c.setBackground(new Color(250, 218, 218));
-                    } else if (isExpired(expiry)) {
-                        c.setBackground(new Color(235, 235, 235));
-                    } else {
-                        c.setBackground(Color.WHITE);
-                    }
-                }
-                return c;
-            }
-        };
-        table.setDefaultRenderer(Object.class, colored);
-    }
-
-    private boolean isExpired(String expiry) {
-        try {
-            return LocalDate.parse(expiry).isBefore(LocalDate.now());
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void loadTable() {
-        infoLabel.setText("Loading...");
         model.setRowCount(0);
-        String searchText = searchField.getText().trim();
-
-        new SwingWorker<java.util.List<Certificate>, Void>() {
-            @Override
-            protected java.util.List<Certificate> doInBackground() {
-                CertificateDAO dao = new CertificateDAO();
-                return searchText.isEmpty() ? dao.findAll() : dao.search(searchText);
-            }
-
-            @Override
-            protected void done() {
-                java.util.List<Certificate> list;
-                try {
-                    list = get();
-                } catch (Exception ex) {
-                    infoLabel.setText("Database error.");
-                    return;
-                }
-
-                for (Certificate c : list) {
-                    model.addRow(new Object[] {
-                            c.getId(), c.getHolderName(), c.getCourse(), c.getInstitution(),
-                            c.getGrade(), c.getIssueDate(), c.getExpiryDate(), c.getStatus()
-                    });
-                }
-                infoLabel.setText(list.size() + " certificate(s) shown.");
-            }
-        }.execute();
+        for (Certificate c : list) {
+            model.addRow(new Object[] { c.id, c.holderName, c.course, c.institution,
+                    c.grade, c.issueDate, c.expiryDate, c.status });
+        }
     }
 }
